@@ -1,28 +1,90 @@
-//
-// Created by nickyyy on 26-4-23.
-//
-#include "drv_sdmmc.h"    /* 包含你定义的框架头文件 */
+/*
+ * Copyright (c) 2025 nickyyy
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-/* 注意：请根据你实际使用的芯片系列替换头文件，例如 stm32h7xx_hal.h */
+/**
+ * @file st_mmc.c
+ * @brief STM32 SDMMC Driver Implementation
+ *
+ * This file provides the STM32 HAL-based implementation of the SDMMC driver
+ * interface defined in drv_sdmmc.h.
+ *
+ * @author nickyyy
+ * @date 2025-04-23
+ */
+
+#include "drv_sdmmc.h"
 #include "sdmmc.h"
 
+/* Private function prototypes */
+static std_ret st_sd_init(void *dev);
+static std_ret st_sd_deinit(void *dev);
+static std_ret st_sd_set_bus_width(void *dev, drv_sdmmc_bus_width_t width);
+static std_ret st_sd_set_speed(void *dev, drv_sdmmc_speed_t speed);
+static std_ret st_sd_get_info(void *dev, drv_sdmmc_info_t *info);
+static drv_sdmmc_state_t st_sd_get_state(void *dev);
+static std_ret st_sd_read_blocks(void *dev, uint32_t block_addr, uint8_t *data, uint32_t num_blocks);
+static std_ret st_sd_write_blocks(void *dev, uint32_t block_addr, const uint8_t *data, uint32_t num_blocks);
+static std_ret st_sd_erase_blocks(void *dev, uint32_t start_addr, uint32_t end_addr);
 
 /* ========================================================================= */
-/* 1. 具体底层函数的实现 (Static Functions)                                  */
+/* Public Driver Objects                                                     */
+/* ========================================================================= */
+
+drv_sdmmc_obj_t drv_sdmmc_obj2 = {
+    .dev           = &hsd2,
+    .init          = st_sd_init,
+    .deinit        = st_sd_deinit,
+    .set_bus_width = st_sd_set_bus_width,
+    .set_speed     = st_sd_set_speed,
+    .get_info      = st_sd_get_info,
+    .get_state     = st_sd_get_state,
+    .read_blocks   = st_sd_read_blocks,
+    .write_blocks  = st_sd_write_blocks,
+    .erase_blocks  = st_sd_erase_blocks,
+    .timeout_ms    = 1000
+};
+
+/* ========================================================================= */
+/* Private Functions                                                         */
 /* ========================================================================= */
 
 static std_ret st_sd_init(void *dev)
 {
-    // SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
-    // if (HAL_SD_Init(hsd) != HAL_OK) {
-    //     return E_NOK;
-    // }
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
+
     MX_SDMMC2_SD_Init();
     return E_OK;
 }
 
 static std_ret st_sd_deinit(void *dev)
 {
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
     if (HAL_SD_DeInit(hsd) != HAL_OK) {
         return E_NOK;
@@ -32,6 +94,11 @@ static std_ret st_sd_deinit(void *dev)
 
 static std_ret st_sd_set_bus_width(void *dev, drv_sdmmc_bus_width_t width)
 {
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
     uint32_t hal_width;
 
@@ -39,7 +106,7 @@ static std_ret st_sd_set_bus_width(void *dev, drv_sdmmc_bus_width_t width)
         case SDMMC_BUS_1_BIT: hal_width = SDMMC_BUS_WIDE_1B; break;
         case SDMMC_BUS_4_BIT: hal_width = SDMMC_BUS_WIDE_4B; break;
         case SDMMC_BUS_8_BIT: hal_width = SDMMC_BUS_WIDE_8B; break;
-        default: return E_NOK;
+        default: return E_INVALID_PARAM;
     }
 
     if (HAL_SD_ConfigWideBusOperation(hsd, hal_width) != HAL_OK) {
@@ -50,19 +117,26 @@ static std_ret st_sd_set_bus_width(void *dev, drv_sdmmc_bus_width_t width)
 
 static std_ret st_sd_set_speed(void *dev, drv_sdmmc_speed_t speed)
 {
-    /* STM32 HAL 的速度通常在 Init 的 hsd->Init.ClockDiv 中设置。
-     * 对于 SD NAND，一般通过切换频率分频器来实现。
-     * 这里给出一个简化的实现思路，或者你可以留空，直接在 CubeMX 中配好固定频率。*/
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
 
-    // SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
-    // hsd->Init.ClockDiv = (speed == SDMMC_SPEED_HIGH) ? 0 : 2; // 示例分频
-    // return st_sd_init(dev); // 重新初始化生效
+    /* STM32 HAL speed is typically configured in hsd->Init.ClockDiv during initialization.
+     * For SD NAND, frequency is usually adjusted by changing the clock divider.
+     * This is a simplified implementation - actual speed change may require re-initialization. */
+    (void)speed; /* Unused parameter - suppress warning */
 
     return E_OK;
 }
 
 static std_ret st_sd_get_info(void *dev, drv_sdmmc_info_t *info)
 {
+    if (NULL == dev || NULL == info)
+    {
+        return E_INVALID_PARAM;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
     HAL_SD_CardInfoTypeDef hal_info;
 
@@ -70,7 +144,7 @@ static std_ret st_sd_get_info(void *dev, drv_sdmmc_info_t *info)
         return E_NOK;
     }
 
-    /* 将 HAL 层的信息提取到我们的通用结构体中 */
+    /* Extract HAL info to generic structure */
     info->block_size  = hal_info.LogBlockSize;
     info->block_count = hal_info.LogBlockNbr;
     info->capacity_mb = (hal_info.LogBlockNbr / (1024 * 1024 / hal_info.LogBlockSize));
@@ -81,10 +155,15 @@ static std_ret st_sd_get_info(void *dev, drv_sdmmc_info_t *info)
 
 static drv_sdmmc_state_t st_sd_get_state(void *dev)
 {
+    if (NULL == dev)
+    {
+        return SDMMC_STATE_ERROR;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
     HAL_SD_CardStateTypeDef state = HAL_SD_GetCardState(hsd);
 
-    /* 状态映射 */
+    /* State mapping */
     switch (state) {
         case HAL_SD_CARD_READY:       return SDMMC_STATE_READY;
         case HAL_SD_CARD_IDENTIFICATION: return SDMMC_STATE_IDENT;
@@ -101,15 +180,21 @@ static drv_sdmmc_state_t st_sd_get_state(void *dev)
 
 static std_ret st_sd_read_blocks(void *dev, uint32_t block_addr, uint8_t *data, uint32_t num_blocks)
 {
+    if (NULL == dev || NULL == data || num_blocks == 0)
+    {
+        return E_INVALID_PARAM;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
-    /* 使用轮询阻塞读取。如果底层使用 DMA，可以替换为 HAL_SD_ReadBlocks_DMA 并在此处或上层轮询状态 */
-    if (HAL_SD_ReadBlocks(hsd, data, block_addr, num_blocks, 1000) != HAL_OK) {
+
+    /* Use polling blocking read. Can be replaced with HAL_SD_ReadBlocks_DMA for DMA mode */
+    if (HAL_SD_ReadBlocks(hsd, data, block_addr, num_blocks, drv_sdmmc_obj2.timeout_ms) != HAL_OK) {
         return E_NOK;
     }
 
-    /* 等待卡回到传输状态 (TRANSFER) */
+    /* Wait for card to return to transfer state */
     while(HAL_SD_GetCardState(hsd) != HAL_SD_CARD_TRANSFER) {
-        /* 如果有 RTOS，可以在这里加入 osDelay 释放 CPU */
+        /* If using RTOS, add osDelay here to release CPU */
     }
 
     return E_OK;
@@ -117,15 +202,20 @@ static std_ret st_sd_read_blocks(void *dev, uint32_t block_addr, uint8_t *data, 
 
 static std_ret st_sd_write_blocks(void *dev, uint32_t block_addr, const uint8_t *data, uint32_t num_blocks)
 {
+    if (NULL == dev || NULL == data || num_blocks == 0)
+    {
+        return E_INVALID_PARAM;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
 
-    if (HAL_SD_WriteBlocks(hsd, (uint8_t *)data, block_addr, num_blocks, 1000) != HAL_OK) {
+    if (HAL_SD_WriteBlocks(hsd, (uint8_t *)data, block_addr, num_blocks, drv_sdmmc_obj2.timeout_ms) != HAL_OK) {
         return E_NOK;
     }
 
-    /* 等待内部 Flash 烧写完成，此时卡处于 PROGRAMMING 状态 */
+    /* Wait for internal flash programming to complete */
     while(HAL_SD_GetCardState(hsd) != HAL_SD_CARD_TRANSFER) {
-        /* 如果有 RTOS，必须在此释放 CPU 调度 */
+        /* If using RTOS, must release CPU scheduling here */
     }
 
     return E_OK;
@@ -133,6 +223,11 @@ static std_ret st_sd_write_blocks(void *dev, uint32_t block_addr, const uint8_t 
 
 static std_ret st_sd_erase_blocks(void *dev, uint32_t start_addr, uint32_t end_addr)
 {
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
+
     SD_HandleTypeDef *hsd = (SD_HandleTypeDef *)dev;
 
     if (HAL_SD_Erase(hsd, start_addr, end_addr) != HAL_OK) {
@@ -144,19 +239,3 @@ static std_ret st_sd_erase_blocks(void *dev, uint32_t start_addr, uint32_t end_a
 
     return E_OK;
 }
-
-
-/* 暴露给上层的具体实例对象 */
-drv_sdmmc_obj_t drv_sdmmc_obj2 = {
-    .dev           = &hsd2,
-    .init          = st_sd_init,
-    .deinit        = st_sd_deinit,
-    .set_bus_width = st_sd_set_bus_width,
-    .set_speed     = st_sd_set_speed,
-    .get_info      = st_sd_get_info,
-    .get_state     = st_sd_get_state,
-    .read_blocks   = st_sd_read_blocks,
-    .write_blocks  = st_sd_write_blocks,
-    .erase_blocks  = st_sd_erase_blocks,
-    .timeout_ms    = 1000
-};

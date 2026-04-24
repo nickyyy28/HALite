@@ -21,24 +21,24 @@
  */
 
 /**
- * @file drv_spi.c
- * @brief SPI/QSPI Driver Framework Implementation
+ * @file drv_sdmmc.c
+ * @brief SDMMC Driver Framework Implementation
  *
- * This file implements the hardware-independent SPI/QSPI API that calls
+ * This file implements the hardware-independent SDMMC API that calls
  * platform-specific function pointers.
  *
  * @author nickyyy
  * @date 2025-04-24
  */
 
-#include "drv_spi.h"
+#include "drv_sdmmc.h"
 #include <stddef.h>
 
 /* ========================================================================= */
 /* Public API Functions                                                      */
 /* ========================================================================= */
 
-std_ret drv_spi_init(drv_spi_obj_t *obj)
+std_ret drv_sdmmc_init(drv_sdmmc_obj_t *obj)
 {
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->init)
@@ -52,7 +52,7 @@ std_ret drv_spi_init(drv_spi_obj_t *obj)
     return ret;
 }
 
-std_ret drv_spi_deinit(drv_spi_obj_t *obj)
+std_ret drv_sdmmc_deinit(drv_sdmmc_obj_t *obj)
 {
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->deinit)
@@ -66,12 +66,12 @@ std_ret drv_spi_deinit(drv_spi_obj_t *obj)
     return ret;
 }
 
-std_ret drv_spi_write(drv_spi_obj_t *obj, const uint8_t *data, uint32_t size, drv_spi_lines_t line)
+std_ret drv_sdmmc_set_bus_width(drv_sdmmc_obj_t *obj, drv_sdmmc_bus_width_t width)
 {
     std_ret ret = E_NOK;
-    if (NULL != obj && NULL != obj->write)
+    if (NULL != obj && NULL != obj->set_bus_width)
     {
-        ret = obj->write(obj->dev, data, size, line);
+        ret = obj->set_bus_width(obj->dev, width);
     }
     else
     {
@@ -80,12 +80,12 @@ std_ret drv_spi_write(drv_spi_obj_t *obj, const uint8_t *data, uint32_t size, dr
     return ret;
 }
 
-std_ret drv_spi_read(drv_spi_obj_t *obj, uint8_t *dst, uint32_t size, drv_spi_lines_t line)
+std_ret drv_sdmmc_set_speed(drv_sdmmc_obj_t *obj, drv_sdmmc_speed_t speed)
 {
     std_ret ret = E_NOK;
-    if (NULL != obj && NULL != obj->read)
+    if (NULL != obj && NULL != obj->set_speed)
     {
-        ret = obj->read(obj->dev, dst, size, line);
+        ret = obj->set_speed(obj->dev, speed);
     }
     else
     {
@@ -94,15 +94,63 @@ std_ret drv_spi_read(drv_spi_obj_t *obj, uint8_t *dst, uint32_t size, drv_spi_li
     return ret;
 }
 
-std_ret drv_spi_writeread(drv_spi_obj_t *obj, uint8_t cmd, drv_spi_lines_t cmd_line,
-    uint32_t addr, drv_spi_lines_t addr_line, drv_spi_addr_mode_t addr_mode, drv_spi_dummy_cycles_t dummy_cycles,
-    uint8_t *data, uint32_t data_size, drv_spi_lines_t data_line, drv_spi_direction_t direction)
+std_ret drv_sdmmc_get_info(drv_sdmmc_obj_t *obj, drv_sdmmc_info_t *info)
 {
     std_ret ret = E_NOK;
-    if (NULL != obj && NULL != obj->writeread)
+    if (NULL != obj && NULL != obj->get_info)
     {
-        ret = obj->writeread(obj->dev, cmd, cmd_line, addr, addr_line, addr_mode, dummy_cycles,
-                             data, data_size, data_line, direction);
+        ret = obj->get_info(obj->dev, info);
+    }
+    else
+    {
+        ret = E_INVALID_PARAM;
+    }
+    return ret;
+}
+
+drv_sdmmc_state_t drv_sdmmc_get_state(drv_sdmmc_obj_t *obj)
+{
+    if (NULL != obj && NULL != obj->get_state)
+    {
+        return obj->get_state(obj->dev);
+    }
+    return SDMMC_STATE_ERROR;
+}
+
+std_ret drv_sdmmc_read_blocks(drv_sdmmc_obj_t *obj, uint32_t block_addr, uint8_t *data, uint32_t num_blocks)
+{
+    std_ret ret = E_NOK;
+    if (NULL != obj && NULL != obj->read_blocks)
+    {
+        ret = obj->read_blocks(obj->dev, block_addr, data, num_blocks);
+    }
+    else
+    {
+        ret = E_INVALID_PARAM;
+    }
+    return ret;
+}
+
+std_ret drv_sdmmc_write_blocks(drv_sdmmc_obj_t *obj, uint32_t block_addr, const uint8_t *data, uint32_t num_blocks)
+{
+    std_ret ret = E_NOK;
+    if (NULL != obj && NULL != obj->write_blocks)
+    {
+        ret = obj->write_blocks(obj->dev, block_addr, data, num_blocks);
+    }
+    else
+    {
+        ret = E_INVALID_PARAM;
+    }
+    return ret;
+}
+
+std_ret drv_sdmmc_erase_blocks(drv_sdmmc_obj_t *obj, uint32_t start_addr, uint32_t end_addr)
+{
+    std_ret ret = E_NOK;
+    if (NULL != obj && NULL != obj->erase_blocks)
+    {
+        ret = obj->erase_blocks(obj->dev, start_addr, end_addr);
     }
     else
     {

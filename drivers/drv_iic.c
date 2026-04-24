@@ -21,24 +21,24 @@
  */
 
 /**
- * @file drv_spi.c
- * @brief SPI/QSPI Driver Framework Implementation
+ * @file drv_iic.c
+ * @brief I2C Driver Framework Implementation
  *
- * This file implements the hardware-independent SPI/QSPI API that calls
+ * This file implements the hardware-independent I2C API that calls
  * platform-specific function pointers.
  *
  * @author nickyyy
  * @date 2025-04-24
  */
 
-#include "drv_spi.h"
+#include "drv_iic.h"
 #include <stddef.h>
 
 /* ========================================================================= */
 /* Public API Functions                                                      */
 /* ========================================================================= */
 
-std_ret drv_spi_init(drv_spi_obj_t *obj)
+std_ret drv_iic_init(drv_iic_obj_t *obj)
 {
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->init)
@@ -52,7 +52,7 @@ std_ret drv_spi_init(drv_spi_obj_t *obj)
     return ret;
 }
 
-std_ret drv_spi_deinit(drv_spi_obj_t *obj)
+std_ret drv_iic_deinit(drv_iic_obj_t *obj)
 {
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->deinit)
@@ -66,26 +66,12 @@ std_ret drv_spi_deinit(drv_spi_obj_t *obj)
     return ret;
 }
 
-std_ret drv_spi_write(drv_spi_obj_t *obj, const uint8_t *data, uint32_t size, drv_spi_lines_t line)
-{
-    std_ret ret = E_NOK;
-    if (NULL != obj && NULL != obj->write)
-    {
-        ret = obj->write(obj->dev, data, size, line);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
-
-std_ret drv_spi_read(drv_spi_obj_t *obj, uint8_t *dst, uint32_t size, drv_spi_lines_t line)
+std_ret drv_iic_read(drv_iic_obj_t *obj, uint16_t device_addr, uint16_t reg_addr, drv_iic_reg_addr_mode reg_mode, uint8_t* data, uint32_t data_len, uint32_t timeout)
 {
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->read)
     {
-        ret = obj->read(obj->dev, dst, size, line);
+        ret = obj->read(obj->dev, device_addr, reg_addr, reg_mode, data, data_len, timeout);
     }
     else
     {
@@ -94,15 +80,12 @@ std_ret drv_spi_read(drv_spi_obj_t *obj, uint8_t *dst, uint32_t size, drv_spi_li
     return ret;
 }
 
-std_ret drv_spi_writeread(drv_spi_obj_t *obj, uint8_t cmd, drv_spi_lines_t cmd_line,
-    uint32_t addr, drv_spi_lines_t addr_line, drv_spi_addr_mode_t addr_mode, drv_spi_dummy_cycles_t dummy_cycles,
-    uint8_t *data, uint32_t data_size, drv_spi_lines_t data_line, drv_spi_direction_t direction)
+std_ret drv_iic_write(drv_iic_obj_t *obj, uint16_t device_addr, uint16_t reg_addr, drv_iic_reg_addr_mode reg_mode, uint8_t* data, uint32_t data_len, uint32_t timeout)
 {
     std_ret ret = E_NOK;
-    if (NULL != obj && NULL != obj->writeread)
+    if (NULL != obj && NULL != obj->write)
     {
-        ret = obj->writeread(obj->dev, cmd, cmd_line, addr, addr_line, addr_mode, dummy_cycles,
-                             data, data_size, data_line, direction);
+        ret = obj->write(obj->dev, device_addr, reg_addr, reg_mode, data, data_len, timeout);
     }
     else
     {

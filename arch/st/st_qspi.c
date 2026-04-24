@@ -1,16 +1,47 @@
-//
-// Created by nickyyy on 26-4-17.
-//
+/*
+ * Copyright (c) 2025 nickyyy
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * @file st_qspi.c
+ * @brief STM32 QSPI Driver Implementation
+ *
+ * This file provides the STM32 HAL-based implementation of the QSPI/SPI driver
+ * interface defined in drv_spi.h.
+ *
+ * @author nickyyy
+ * @date 2025-04-17
+ */
+
 #include "st_qspi.h"
 #include "log.h"
 
 #define ST_QSPI_TIMEOUT_MS          500u
 
-std_ret st_qspi_init(void* dev);
-std_ret st_qspi_deinit(void* dev);
-std_ret st_qspi_write(void* dev, const uint8_t *data, uint32_t size, drv_spi_lines_t line);
-std_ret st_qspi_read(void* dev, uint8_t *dst, uint32_t size, drv_spi_lines_t line);
-std_ret st_qspi_writrread(void* dev, uint8_t cmd, drv_spi_lines_t cmd_line,
+/* Private function prototypes */
+static std_ret st_qspi_init(void* dev);
+static std_ret st_qspi_deinit(void* dev);
+static std_ret st_qspi_write(void* dev, const uint8_t *data, uint32_t size, drv_spi_lines_t line);
+static std_ret st_qspi_read(void* dev, uint8_t *dst, uint32_t size, drv_spi_lines_t line);
+static std_ret st_qspi_writeread(void* dev, uint8_t cmd, drv_spi_lines_t cmd_line,
     uint32_t addr, drv_spi_lines_t addr_line, drv_spi_addr_mode_t addr_mode, drv_spi_dummy_cycles_t dummy_cycles,
     uint8_t *data, uint32_t data_size, drv_spi_lines_t data_line, drv_spi_direction_t direction);
 
@@ -68,29 +99,45 @@ const char* datamode2str(uint32_t var)
     }
 }
 
+/* ========================================================================= */
+/* Public Driver Objects                                                     */
+/* ========================================================================= */
+
 drv_spi_obj_t drv_qspi_obj1 = {
     .dev = &hqspi,
     .init = st_qspi_init,
     .deinit = st_qspi_deinit,
     .read = st_qspi_read,
     .write = st_qspi_write,
-    .writeread = st_qspi_writrread,
+    .writeread = st_qspi_writeread,
     .timeout_ms = 100
 };
 
-std_ret st_qspi_init(void* dev)
+/* ========================================================================= */
+/* Private Functions                                                         */
+/* ========================================================================= */
+
+static std_ret st_qspi_init(void* dev)
 {
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
     MX_QUADSPI_Init();
     return E_OK;
 }
 
-std_ret st_qspi_deinit(void* dev)
+static std_ret st_qspi_deinit(void* dev)
 {
+    if (NULL == dev)
+    {
+        return E_INVALID_PARAM;
+    }
     HAL_QSPI_MspDeInit(dev);
     return E_OK;
 }
 
-std_ret st_qspi_write(void* dev, const uint8_t *data, uint32_t size, drv_spi_lines_t line)
+static std_ret st_qspi_write(void* dev, const uint8_t *data, uint32_t size, drv_spi_lines_t line)
 {
     if (NULL == dev || NULL == data || size == 0)
     {
@@ -140,7 +187,7 @@ std_ret st_qspi_write(void* dev, const uint8_t *data, uint32_t size, drv_spi_lin
     return E_OK;
 }
 
-std_ret st_qspi_read(void* dev, uint8_t *dst, uint32_t size, drv_spi_lines_t line)
+static std_ret st_qspi_read(void* dev, uint8_t *dst, uint32_t size, drv_spi_lines_t line)
 {
     if (NULL == dev || NULL == dst || size == 0)
     {
@@ -192,7 +239,7 @@ std_ret st_qspi_read(void* dev, uint8_t *dst, uint32_t size, drv_spi_lines_t lin
     return E_OK;
 }
 
-std_ret st_qspi_writrread(void* dev, uint8_t cmd, drv_spi_lines_t cmd_line,
+static std_ret st_qspi_writeread(void* dev, uint8_t cmd, drv_spi_lines_t cmd_line,
     uint32_t addr, drv_spi_lines_t addr_line, drv_spi_addr_mode_t addr_mode, drv_spi_dummy_cycles_t dummy_cycles,
     uint8_t *data, uint32_t data_size, drv_spi_lines_t data_line, drv_spi_direction_t direction)
 {

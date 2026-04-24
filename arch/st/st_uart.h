@@ -21,61 +21,46 @@
  */
 
 /**
- * @file flash.c
- * @brief Flash Device Driver Framework Implementation
+ * @file st_uart.h
+ * @brief STM32 UART Driver Header
  *
- * This file implements the hardware-independent Flash API that calls
- * device-specific function pointers.
+ * This file provides the STM32 HAL-based UART driver declarations.
  *
  * @author nickyyy
- * @date 2025-04-18
+ * @date 2025-04-24
  */
 
-#include "flash.h"
-#include <stddef.h>
+#ifndef ST_UART_H
+#define ST_UART_H
+
+#include "drv_uart.h"
 
 /* ========================================================================= */
-/* Public API Functions                                                      */
+/* External UART Handle Declarations                                         */
 /* ========================================================================= */
 
-std_ret flash_write(flash_device_t *dev, uint32_t addr, uint8_t *data, uint32_t len)
-{
-    std_ret ret = E_NOK;
-    if (NULL != dev && NULL != dev->flash_write)
-    {
-        ret = dev->flash_write(addr, data, len);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
+#if defined(USART1) && defined(USE_UART1)
+extern drv_uart_obj_t drv_uart1_obj;
+#endif
 
-std_ret flash_read(flash_device_t *dev, uint32_t addr, uint8_t *data, uint32_t len)
-{
-    std_ret ret = E_NOK;
-    if (NULL != dev && NULL != dev->flash_read)
-    {
-        ret = dev->flash_read(addr, data, len);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
+#if defined(USART2) && defined(USE_UART2)
+extern drv_uart_obj_t drv_uart2_obj;
+#endif
 
-std_ret flash_erase(flash_device_t *dev, uint32_t addr, uint32_t len)
-{
-    std_ret ret = E_NOK;
-    if (NULL != dev && NULL != dev->flash_erase)
-    {
-        ret = dev->flash_erase(addr, len);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
+#if defined(USART3) && defined(USE_UART3)
+extern drv_uart_obj_t drv_uart3_obj;
+#endif
+
+#if defined(UART4) && defined(USE_UART4)
+extern drv_uart_obj_t drv_uart4_obj;
+#endif
+
+#if defined(UART5) && defined(USE_UART5)
+extern drv_uart_obj_t drv_uart5_obj;
+#endif
+
+#if defined(USART6) && defined(USE_UART6)
+extern drv_uart_obj_t drv_uart6_obj;
+#endif
+
+#endif /* ST_UART_H */
