@@ -32,7 +32,7 @@
  */
 
 #include "spinor.h"
-#include "log.h"
+#include "../../kernel/log.h"
 #include "drv_tick.h"
 
 /* Private function prototypes */

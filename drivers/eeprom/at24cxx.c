@@ -33,13 +33,14 @@
 
 #include "at24cxx.h"
 #include "drv_tick.h"
+#include "drv_iic.h"
 
 #define AT24C_IIC_TIMEOUT 1000
 
 /* Private function prototypes */
-static std_ret at24c_init(at24c_dev_t *dev);
-static std_ret at24c_read_bytes(at24c_dev_t *dev, uint16_t mem_addr, uint8_t *data, uint32_t len);
-static std_ret at24c_write_bytes(at24c_dev_t *dev, uint16_t mem_addr, uint8_t *data, uint32_t len);
+std_ret at24c_init(at24c_dev_t *dev);
+std_ret at24c_read_bytes(at24c_dev_t *dev, uint16_t mem_addr, uint8_t *data, uint32_t len);
+std_ret at24c_write_bytes(at24c_dev_t *dev, uint16_t mem_addr, uint8_t *data, uint32_t len);
 
 /* ========================================================================= */
 /* Public API Functions                                                      */

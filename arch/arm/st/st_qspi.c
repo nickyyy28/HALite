@@ -32,7 +32,7 @@
  */
 
 #include "st_qspi.h"
-#include "log.h"
+#include "../../kernel/log.h"
 
 #define ST_QSPI_TIMEOUT_MS          500u
 

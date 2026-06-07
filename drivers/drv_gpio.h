@@ -75,15 +75,15 @@
  */
 typedef enum
 {
-    GPIO_MODE_INPUT = 0,        /**< Input mode */
-    GPIO_MODE_OUTPUT_PP,        /**< Output push-pull mode */
-    GPIO_MODE_OUTPUT_OD,        /**< Output open-drain mode */
-    GPIO_MODE_AF_PP,            /**< Alternate function push-pull */
-    GPIO_MODE_AF_OD,            /**< Alternate function open-drain */
-    GPIO_MODE_ANALOG,           /**< Analog mode */
-    GPIO_MODE_IT_RISING,        /**< External interrupt rising edge */
-    GPIO_MODE_IT_FALLING,       /**< External interrupt falling edge */
-    GPIO_MODE_IT_RISING_FALLING /**< External interrupt both edges */
+    DRV_GPIO_MODE_INPUT = 0,        /**< Input mode */
+    DRV_GPIO_MODE_OUTPUT_PP,        /**< Output push-pull mode */
+    DRV_GPIO_MODE_OUTPUT_OD,        /**< Output open-drain mode */
+    DRV_GPIO_MODE_AF_PP,            /**< Alternate function push-pull */
+    DRV_GPIO_MODE_AF_OD,            /**< Alternate function open-drain */
+    DRV_GPIO_MODE_ANALOG,           /**< Analog mode */
+    DRV_GPIO_MODE_IT_RISING,        /**< External interrupt rising edge */
+    DRV_GPIO_MODE_IT_FALLING,       /**< External interrupt falling edge */
+    DRV_GPIO_MODE_IT_RISING_FALLING /**< External interrupt both edges */
 } drv_gpio_mode_t;
 
 /**
@@ -91,9 +91,9 @@ typedef enum
  */
 typedef enum
 {
-    GPIO_PULL_NONE = 0, /**< No pull-up or pull-down */
-    GPIO_PULL_UP,       /**< Pull-up enabled */
-    GPIO_PULL_DOWN      /**< Pull-down enabled */
+    DRV_GPIO_PULL_NONE = 0, /**< No pull-up or pull-down */
+    DRV_GPIO_PULL_UP,       /**< Pull-up enabled */
+    DRV_GPIO_PULL_DOWN      /**< Pull-down enabled */
 } drv_gpio_pull_t;
 
 /**
@@ -101,10 +101,10 @@ typedef enum
  */
 typedef enum
 {
-    GPIO_SPEED_LOW = 0,    /**< Low speed */
-    GPIO_SPEED_MEDIUM,     /**< Medium speed */
-    GPIO_SPEED_HIGH,       /**< High speed */
-    GPIO_SPEED_VERY_HIGH   /**< Very high speed */
+    DRV_GPIO_SPEED_LOW = 0,    /**< Low speed */
+    DRV_GPIO_SPEED_MEDIUM,     /**< Medium speed */
+    DRV_GPIO_SPEED_HIGH,       /**< High speed */
+    DRV_GPIO_SPEED_VERY_HIGH   /**< Very high speed */
 } drv_gpio_speed_t;
 
 /**
@@ -112,8 +112,8 @@ typedef enum
  */
 typedef enum
 {
-    GPIO_PIN_RESET = 0, /**< Pin low level */
-    GPIO_PIN_SET        /**< Pin high level */
+    DRV_GPIO_PIN_RESET = 0, /**< Pin low level */
+    DRV_GPIO_PIN_SET        /**< Pin high level */
 } drv_gpio_pin_state_t;
 
 /**
@@ -185,43 +185,6 @@ typedef struct
      */
     std_ret (*toggle)(void *dev, uint16_t pin);
 
-    /* Configuration functions */
-    /**
-     * @brief Set pin mode
-     * @param dev Hardware device handle
-     * @param pin Pin number
-     * @param mode Pin mode
-     * @return E_OK on success, error code otherwise
-     */
-    std_ret (*set_mode)(void *dev, uint16_t pin, drv_gpio_mode_t mode);
-
-    /**
-     * @brief Set pin pull-up/pull-down
-     * @param dev Hardware device handle
-     * @param pin Pin number
-     * @param pull Pull configuration
-     * @return E_OK on success, error code otherwise
-     */
-    std_ret (*set_pull)(void *dev, uint16_t pin, drv_gpio_pull_t pull);
-
-    /**
-     * @brief Set pin speed
-     * @param dev Hardware device handle
-     * @param pin Pin number
-     * @param speed Pin speed
-     * @return E_OK on success, error code otherwise
-     */
-    std_ret (*set_speed)(void *dev, uint16_t pin, drv_gpio_speed_t speed);
-
-    /**
-     * @brief Set alternate function
-     * @param dev Hardware device handle
-     * @param pin Pin number
-     * @param alternate Alternate function number (0-15)
-     * @return E_OK on success, error code otherwise
-     */
-    std_ret (*set_alternate)(void *dev, uint16_t pin, uint8_t alternate);
-
     /* Interrupt functions */
     /**
      * @brief Enable external interrupt
@@ -290,42 +253,6 @@ drv_gpio_pin_state_t drv_gpio_read(drv_gpio_obj_t *obj);
  * @return E_OK on success, E_INVALID_PARAM if obj is NULL, error code otherwise
  */
 std_ret drv_gpio_toggle(drv_gpio_obj_t *obj);
-
-/**
- * @brief Set GPIO pin mode
- *
- * @param obj Pointer to GPIO driver object
- * @param mode Pin mode
- * @return E_OK on success, E_INVALID_PARAM if obj is NULL, error code otherwise
- */
-std_ret drv_gpio_set_mode(drv_gpio_obj_t *obj, drv_gpio_mode_t mode);
-
-/**
- * @brief Set GPIO pin pull-up/pull-down
- *
- * @param obj Pointer to GPIO driver object
- * @param pull Pull configuration
- * @return E_OK on success, E_INVALID_PARAM if obj is NULL, error code otherwise
- */
-std_ret drv_gpio_set_pull(drv_gpio_obj_t *obj, drv_gpio_pull_t pull);
-
-/**
- * @brief Set GPIO pin speed
- *
- * @param obj Pointer to GPIO driver object
- * @param speed Pin speed
- * @return E_OK on success, E_INVALID_PARAM if obj is NULL, error code otherwise
- */
-std_ret drv_gpio_set_speed(drv_gpio_obj_t *obj, drv_gpio_speed_t speed);
-
-/**
- * @brief Set GPIO alternate function
- *
- * @param obj Pointer to GPIO driver object
- * @param alternate Alternate function number (0-15)
- * @return E_OK on success, E_INVALID_PARAM if obj is NULL, error code otherwise
- */
-std_ret drv_gpio_set_alternate(drv_gpio_obj_t *obj, uint8_t alternate);
 
 /**
  * @brief Enable GPIO external interrupt

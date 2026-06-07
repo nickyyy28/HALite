@@ -33,6 +33,12 @@
 
 #include "st_uart.h"
 #include <stddef.h>
+#include "usart.h"
+
+#if defined STM32H743xx
+    #include "stm32h7xx_hal.h"
+    #include "stm32h7xx_hal_uart.h"
+#endif
 
 /* Private function prototypes */
 static std_ret st_uart_init(void *dev, const drv_uart_config_t *config);
@@ -181,11 +187,11 @@ static uint32_t get_hal_word_length(drv_uart_data_width_t data_width)
 {
     switch (data_width)
     {
-        case UART_DATA_WIDTH_7_BIT:
+        case DRV_UART_DATA_WIDTH_7_BIT:
             return UART_WORDLENGTH_7B;
-        case UART_DATA_WIDTH_8_BIT:
+        case DRV_UART_DATA_WIDTH_8_BIT:
             return UART_WORDLENGTH_8B;
-        case UART_DATA_WIDTH_9_BIT:
+        case DRV_UART_DATA_WIDTH_9_BIT:
             return UART_WORDLENGTH_9B;
         default:
             return UART_WORDLENGTH_8B;
@@ -199,11 +205,11 @@ static uint32_t get_hal_stop_bits(drv_uart_stop_bits_t stop_bits)
 {
     switch (stop_bits)
     {
-        case UART_STOP_BITS_1:
+        case DRV_UART_STOP_BITS_1:
             return UART_STOPBITS_1;
-        case UART_STOP_BITS_1_5:
+        case DRV_UART_STOP_BITS_1_5:
             return UART_STOPBITS_1_5;
-        case UART_STOP_BITS_2:
+        case DRV_UART_STOP_BITS_2:
             return UART_STOPBITS_2;
         default:
             return UART_STOPBITS_1;
@@ -217,11 +223,11 @@ static uint32_t get_hal_parity(drv_uart_parity_t parity)
 {
     switch (parity)
     {
-        case UART_PARITY_NONE:
+        case DRV_UART_PARITY_NONE:
             return UART_PARITY_NONE;
-        case UART_PARITY_ODD:
+        case DRV_UART_PARITY_ODD:
             return UART_PARITY_ODD;
-        case UART_PARITY_EVEN:
+        case DRV_UART_PARITY_EVEN:
             return UART_PARITY_EVEN;
         default:
             return UART_PARITY_NONE;
@@ -235,13 +241,13 @@ static uint32_t get_hal_flow_control(drv_uart_flow_control_t flow_control)
 {
     switch (flow_control)
     {
-        case UART_FLOW_CONTROL_NONE:
+        case DRV_UART_FLOW_CONTROL_NONE:
             return UART_HWCONTROL_NONE;
-        case UART_FLOW_CONTROL_RTS:
+        case DRV_UART_FLOW_CONTROL_RTS:
             return UART_HWCONTROL_RTS;
-        case UART_FLOW_CONTROL_CTS:
+        case DRV_UART_FLOW_CONTROL_CTS:
             return UART_HWCONTROL_CTS;
-        case UART_FLOW_CONTROL_RTS_CTS:
+        case DRV_UART_FLOW_CONTROL_RTS_CTS:
             return UART_HWCONTROL_RTS_CTS;
         default:
             return UART_HWCONTROL_NONE;
@@ -268,13 +274,6 @@ static std_ret st_uart_init(void *dev, const drv_uart_config_t *config)
     huart->Init.Mode = UART_MODE_TX_RX;
     huart->Init.HwFlowCtl = get_hal_flow_control(config->flow_control);
     huart->Init.OverSampling = UART_OVERSAMPLING_16;
-
-#if defined(USART_CR1_FIFOEN)
-    /* Enable FIFO mode if available */
-    huart->Init.FIFOMode = UART_FIFOMODE_ENABLE;
-    huart->Init.TXFIFOThreshold = UART_TXFIFO_THRESHOLD_1_8;
-    huart->Init.RXFIFOThreshold = UART_RXFIFO_THRESHOLD_1_8;
-#endif
 
     HAL_StatusTypeDef hal_ret = HAL_UART_Init(huart);
     if (hal_ret != HAL_OK)
@@ -415,20 +414,8 @@ static std_ret st_uart_receive_dma(void *dev, uint8_t *buffer, uint32_t size)
  */
 static std_ret st_uart_set_baudrate(void *dev, uint32_t baudrate)
 {
-    if (NULL == dev || baudrate == 0)
-    {
-        return E_INVALID_PARAM;
-    }
-
-    UART_HandleTypeDef *huart = (UART_HandleTypeDef *)dev;
-
-    HAL_StatusTypeDef hal_ret = HAL_UART_SetBaudRate(huart, baudrate);
-    if (hal_ret != HAL_OK)
-    {
-        return E_NOK;
-    }
-
-    return E_OK;
+    // cannot set baudrate runtime
+    return E_NOK;
 }
 
 /**
@@ -436,22 +423,7 @@ static std_ret st_uart_set_baudrate(void *dev, uint32_t baudrate)
  */
 static std_ret st_uart_set_flow_control(void *dev, drv_uart_flow_control_t flow_control)
 {
-    if (NULL == dev)
-    {
-        return E_INVALID_PARAM;
-    }
-
-    UART_HandleTypeDef *huart = (UART_HandleTypeDef *)dev;
-
-    uint32_t hal_flow_ctl = get_hal_flow_control(flow_control);
-
-    HAL_StatusTypeDef hal_ret = HAL_UART_SetFlowControl(huart, hal_flow_ctl);
-    if (hal_ret != HAL_OK)
-    {
-        return E_NOK;
-    }
-
-    return E_OK;
+    return E_NOK;
 }
 
 /**

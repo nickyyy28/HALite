@@ -23,4 +23,9 @@ typedef struct
 	std_ret (*write)(void* dev, uint16_t device_addr, uint16_t reg_addr, drv_iic_reg_addr_mode reg_mode, uint8_t* data, uint32_t data_len, uint32_t timeout);
 }drv_iic_obj_t;
 
+std_ret drv_iic_init(drv_iic_obj_t *obj);
+std_ret drv_iic_deinit(drv_iic_obj_t *obj);
+std_ret drv_iic_read(drv_iic_obj_t *obj, uint16_t device_addr, uint16_t reg_addr, drv_iic_reg_addr_mode reg_mode, uint8_t* data, uint32_t data_len, uint32_t timeout);
+std_ret drv_iic_write(drv_iic_obj_t *obj, uint16_t device_addr, uint16_t reg_addr, drv_iic_reg_addr_mode reg_mode, uint8_t* data, uint32_t data_len, uint32_t timeout);
+
 #endif //DRV_IIC_H

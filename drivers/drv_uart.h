@@ -35,6 +35,7 @@
 #define DRV_UART_H
 
 #include "std_types.h"
+#include <stdbool.h>
 
 /**
  * @defgroup DRV_UART UART Driver Framework
@@ -76,22 +77,22 @@
  */
 typedef enum
 {
-    UART_BAUD_1200   = 1200,    /**< 1200 bits per second */
-    UART_BAUD_2400   = 2400,    /**< 2400 bits per second */
-    UART_BAUD_4800   = 4800,    /**< 4800 bits per second */
-    UART_BAUD_9600   = 9600,    /**< 9600 bits per second - Standard */
-    UART_BAUD_19200  = 19200,   /**< 19200 bits per second */
-    UART_BAUD_38400  = 38400,   /**< 38400 bits per second */
-    UART_BAUD_57600  = 57600,   /**< 57600 bits per second */
-    UART_BAUD_115200 = 115200,  /**< 115200 bits per second - High speed standard */
-    UART_BAUD_230400 = 230400,  /**< 230400 bits per second */
-    UART_BAUD_460800 = 460800,  /**< 460800 bits per second */
-    UART_BAUD_921600 = 921600,  /**< 921600 bits per second */
-    UART_BAUD_1M     = 1000000, /**< 1 megabit per second */
-    UART_BAUD_2M     = 2000000, /**< 2 megabits per second */
-    UART_BAUD_3M     = 3000000, /**< 3 megabits per second */
-    UART_BAUD_4M     = 4000000, /**< 4 megabits per second */
-    UART_BAUD_5M     = 5000000  /**< 5 megabits per second */
+    DRV_UART_BAUD_1200   = 1200,    /**< 1200 bits per second */
+    DRV_UART_BAUD_2400   = 2400,    /**< 2400 bits per second */
+    DRV_UART_BAUD_4800   = 4800,    /**< 4800 bits per second */
+    DRV_UART_BAUD_9600   = 9600,    /**< 9600 bits per second - Standard */
+    DRV_UART_BAUD_19200  = 19200,   /**< 19200 bits per second */
+    DRV_UART_BAUD_38400  = 38400,   /**< 38400 bits per second */
+    DRV_UART_BAUD_57600  = 57600,   /**< 57600 bits per second */
+    DRV_UART_BAUD_115200 = 115200,  /**< 115200 bits per second - High speed standard */
+    DRV_UART_BAUD_230400 = 230400,  /**< 230400 bits per second */
+    DRV_UART_BAUD_460800 = 460800,  /**< 460800 bits per second */
+    DRV_UART_BAUD_921600 = 921600,  /**< 921600 bits per second */
+    DRV_UART_BAUD_1M     = 1000000, /**< 1 megabit per second */
+    DRV_UART_BAUD_2M     = 2000000, /**< 2 megabits per second */
+    DRV_UART_BAUD_3M     = 3000000, /**< 3 megabits per second */
+    DRV_UART_BAUD_4M     = 4000000, /**< 4 megabits per second */
+    DRV_UART_BAUD_5M     = 5000000  /**< 5 megabits per second */
 } drv_uart_baudrate_t;
 
 /**
@@ -101,11 +102,11 @@ typedef enum
  */
 typedef enum
 {
-    UART_DATA_WIDTH_5_BIT = 0,  /**< 5 data bits (rarely used) */
-    UART_DATA_WIDTH_6_BIT,      /**< 6 data bits (rarely used) */
-    UART_DATA_WIDTH_7_BIT,      /**< 7 data bits (ASCII communication) */
-    UART_DATA_WIDTH_8_BIT,      /**< 8 data bits - Standard (1 byte) */
-    UART_DATA_WIDTH_9_BIT       /**< 9 data bits (parity + 8 data) */
+    DRV_UART_DATA_WIDTH_5_BIT = 0,  /**< 5 data bits (rarely used) */
+    DRV_UART_DATA_WIDTH_6_BIT,      /**< 6 data bits (rarely used) */
+    DRV_UART_DATA_WIDTH_7_BIT,      /**< 7 data bits (ASCII communication) */
+    DRV_UART_DATA_WIDTH_8_BIT,      /**< 8 data bits - Standard (1 byte) */
+    DRV_UART_DATA_WIDTH_9_BIT       /**< 9 data bits (parity + 8 data) */
 } drv_uart_data_width_t;
 
 /**
@@ -115,9 +116,9 @@ typedef enum
  */
 typedef enum
 {
-    UART_STOP_BITS_1   = 0,     /**< 1 stop bit - Standard */
-    UART_STOP_BITS_1_5,         /**< 1.5 stop bits (used with 5 data bits) */
-    UART_STOP_BITS_2            /**< 2 stop bits (better error detection) */
+    DRV_UART_STOP_BITS_1   = 0,     /**< 1 stop bit - Standard */
+    DRV_UART_STOP_BITS_1_5,         /**< 1.5 stop bits (used with 5 data bits) */
+    DRV_UART_STOP_BITS_2            /**< 2 stop bits (better error detection) */
 } drv_uart_stop_bits_t;
 
 /**
@@ -127,9 +128,9 @@ typedef enum
  */
 typedef enum
 {
-    UART_PARITY_NONE = 0,       /**< No parity bit - No error checking */
-    UART_PARITY_ODD,            /**< Odd parity - Parity bit makes total 1s odd */
-    UART_PARITY_EVEN            /**< Even parity - Parity bit makes total 1s even */
+    DRV_UART_PARITY_NONE = 0,       /**< No parity bit - No error checking */
+    DRV_UART_PARITY_ODD,            /**< Odd parity - Parity bit makes total 1s odd */
+    DRV_UART_PARITY_EVEN            /**< Even parity - Parity bit makes total 1s even */
 } drv_uart_parity_t;
 
 /**
@@ -139,10 +140,10 @@ typedef enum
  */
 typedef enum
 {
-    UART_FLOW_CONTROL_NONE = 0, /**< No hardware flow control */
-    UART_FLOW_CONTROL_RTS,      /**< Request To Send only */
-    UART_FLOW_CONTROL_CTS,      /**< Clear To Send only */
-    UART_FLOW_CONTROL_RTS_CTS   /**< Full hardware flow control */
+    DRV_UART_FLOW_CONTROL_NONE = 0, /**< No hardware flow control */
+    DRV_UART_FLOW_CONTROL_RTS,      /**< Request To Send only */
+    DRV_UART_FLOW_CONTROL_CTS,      /**< Clear To Send only */
+    DRV_UART_FLOW_CONTROL_RTS_CTS   /**< Full hardware flow control */
 } drv_uart_flow_control_t;
 
 /**
@@ -308,7 +309,7 @@ std_ret drv_uart_deinit(drv_uart_obj_t *obj);
  * @return E_OK on success, E_INVALID_PARAM if parameters invalid, 
  *         E_TIMEOUT on timeout, error code otherwise
  */
-std_ret drv_uart_transmit(drv_uart_obj_t *obj, const uint8_t *data, uint32_t size);
+std_ret drv_uart_transmit(drv_uart_obj_t *obj, const uint8_t *data, uint32_t size, uint32_t timeout_ms);
 
 /**
  * @brief Receive data (blocking mode)

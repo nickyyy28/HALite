@@ -86,7 +86,7 @@ drv_gpio_pin_state_t drv_gpio_read(drv_gpio_obj_t *obj)
     {
         return obj->read(obj->dev, obj->pin_mask);
     }
-    return GPIO_PIN_RESET;
+    return DRV_GPIO_PIN_RESET;
 }
 
 std_ret drv_gpio_toggle(drv_gpio_obj_t *obj)
@@ -95,62 +95,6 @@ std_ret drv_gpio_toggle(drv_gpio_obj_t *obj)
     if (NULL != obj)
     {
         ret = obj->toggle(obj->dev, obj->pin_mask);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
-
-std_ret drv_gpio_set_mode(drv_gpio_obj_t *obj, drv_gpio_mode_t mode)
-{
-    std_ret ret = E_NOK;
-    if (NULL != obj)
-    {
-        ret = obj->set_mode(obj->dev, obj->pin_mask, mode);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
-
-std_ret drv_gpio_set_pull(drv_gpio_obj_t *obj, drv_gpio_pull_t pull)
-{
-    std_ret ret = E_NOK;
-    if (NULL != obj)
-    {
-        ret = obj->set_pull(obj->dev, obj->pin_mask, pull);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
-
-std_ret drv_gpio_set_speed(drv_gpio_obj_t *obj, drv_gpio_speed_t speed)
-{
-    std_ret ret = E_NOK;
-    if (NULL != obj)
-    {
-        ret = obj->set_speed(obj->dev, obj->pin_mask, speed);
-    }
-    else
-    {
-        ret = E_INVALID_PARAM;
-    }
-    return ret;
-}
-
-std_ret drv_gpio_set_alternate(drv_gpio_obj_t *obj, uint8_t alternate)
-{
-    std_ret ret = E_NOK;
-    if (NULL != obj)
-    {
-        ret = obj->set_alternate(obj->dev, obj->pin_mask, alternate);
     }
     else
     {
