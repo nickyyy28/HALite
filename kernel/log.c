@@ -27,7 +27,7 @@ void SHELL_LOG_LEVEL(_LOG_LEVEL level, const char* fmt, ...)
 	minutes = cur_tick / (1000 * 60);
 	cur_tick %= (1000 * 60);
 	seconds = cur_tick / 1000;
-	sprintf(log_buffer, "\r\n[%02u:%02u:%02u][%s]: %s", hours, minutes, seconds, level_str, raw_buffer);
+	sprintf(log_buffer, "\r\n[%02lu:%02lu:%02lu][%s]: %s", hours, minutes, seconds, level_str, raw_buffer);
     
     va_end(args);
 	SET_CONSOLE_COLOR(log_level_color[level - 1]);

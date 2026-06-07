@@ -7,6 +7,12 @@
 
 #include "drv_iic.h"
 
-extern drv_iic_obj_t drv_iic4_obj;
+#ifdef USE_ST_IIC
+
+#ifdef USE_ST_IIC4
+    extern drv_iic_obj_t drv_iic4_obj;
+#endif /* USE_ST_IIC4 */
+
+#endif /* USE_ST_IIC */
 
 #endif //ST_IIC_H

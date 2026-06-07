@@ -24,7 +24,7 @@
  * @file st_qspi.c
  * @brief STM32 QSPI Driver Implementation
  *
- * This file provides the STM32 HAL-based implementation of the QSPI/SPI driver
+ * This file provides the STM32 HAL-based implementation of the QSPI driver
  * interface defined in drv_spi.h.
  *
  * @author nickyyy
@@ -32,7 +32,15 @@
  */
 
 #include "st_qspi.h"
-#include "../../kernel/log.h"
+#include "log.h"
+
+#ifdef USE_ST_QSPI
+
+#if __has_include("quadspi.h")
+    #include "quadspi.h"
+#else
+    #error "quadspi.h not found. Please ensure the correct HAL QSPI header is included."
+#endif
 
 #define ST_QSPI_TIMEOUT_MS          500u
 
@@ -370,3 +378,5 @@ static std_ret st_qspi_writeread(void* dev, uint8_t cmd, drv_spi_lines_t cmd_lin
 
     return E_OK;
 }
+
+#endif /* USE_ST_QSPI */

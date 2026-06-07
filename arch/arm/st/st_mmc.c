@@ -32,7 +32,25 @@
  */
 
 #include "drv_sdmmc.h"
-#include "sdmmc.h"
+
+#ifdef USE_ST_SDMMC
+
+#if __has_include("sdmmc.h")
+    #include "sdmmc.h"
+#else
+    #error "sdmmc.h not found. Please ensure the correct HAL SDMMC header is included."
+#endif
+
+
+#if defined STM32H743xx
+#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_sdmmc.h"
+#endif
+
+#if defined STM32F411xx || defined STM32F411xE
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_mmc.h"
+#endif
 
 /* Private function prototypes */
 static std_ret st_sd_init(void *dev);
@@ -49,6 +67,8 @@ static std_ret st_sd_erase_blocks(void *dev, uint32_t start_addr, uint32_t end_a
 /* Public Driver Objects                                                     */
 /* ========================================================================= */
 
+#ifdef USE_ST_MMC2
+
 drv_sdmmc_obj_t drv_sdmmc_obj2 = {
     .dev           = &hsd2,
     .init          = st_sd_init,
@@ -62,6 +82,8 @@ drv_sdmmc_obj_t drv_sdmmc_obj2 = {
     .erase_blocks  = st_sd_erase_blocks,
     .timeout_ms    = 1000
 };
+
+#endif /* USE_ST_MMC2 */
 
 /* ========================================================================= */
 /* Private Functions                                                         */
@@ -239,3 +261,5 @@ static std_ret st_sd_erase_blocks(void *dev, uint32_t start_addr, uint32_t end_a
 
     return E_OK;
 }
+
+#endif /* USE_ST_SDMMC */

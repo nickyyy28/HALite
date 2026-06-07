@@ -39,10 +39,6 @@
 /* External UART Handle Declarations                                         */
 /* ========================================================================= */
 
-#include "usart.h"
-
-#define USE_UART1
-
 #if defined(USART1) && defined(USE_UART1)
 extern drv_uart_obj_t drv_uart1_obj;
 #endif

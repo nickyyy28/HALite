@@ -7,6 +7,12 @@
 
 #include "drv_sdmmc.h"
 
-extern drv_sdmmc_obj_t drv_sdmmc_obj2;
+#ifdef USE_ST_SDMMC
+
+#ifdef USE_ST_MMC2
+    extern drv_sdmmc_obj_t drv_sdmmc_obj2;
+#endif /* USE_ST_MMC2 */
+
+#endif /* USE_ST_SDMMC */
 
 #endif //ST_MMC_H

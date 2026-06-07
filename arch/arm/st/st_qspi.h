@@ -6,8 +6,13 @@
 #define ST_QSPI_H
 
 #include "drv_spi.h"
-#include "quadspi.h"
 
-extern drv_spi_obj_t drv_qspi_obj1;
+#ifdef USE_ST_QSPI
+
+#ifdef USE_ST_QSPI1
+    extern drv_spi_obj_t drv_qspi_obj1;
+#endif /* USE_ST_QSPI1 */
+
+#endif /* USE_ST_QSPI */
 
 #endif //ST_QSPI_H

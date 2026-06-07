@@ -34,10 +34,16 @@
 #include "st_gpio.h"
 #include <stddef.h>
 
+#ifdef USE_ST_GPIO
 
 #if defined STM32H743xx
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_gpio.h"
+#endif
+
+#if defined STM32F411xx || defined STM32F411xE
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_gpio.h"
 #endif
 
 /* Private function prototypes */
@@ -423,3 +429,5 @@ void st_gpio_obj_init(drv_gpio_obj_t *obj, void *port, uint16_t pin)
     obj->default_cfg.speed = DRV_GPIO_SPEED_LOW;
     obj->default_cfg.alternate = 0;
 }
+
+#endif /* USE_ST_GPIO */

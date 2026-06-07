@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "HALite_conf.h"
+
 #define E_OK                0
 #define E_NOK               1
 #define E_NO_MEM            2

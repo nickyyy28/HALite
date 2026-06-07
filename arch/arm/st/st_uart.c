@@ -33,11 +33,24 @@
 
 #include "st_uart.h"
 #include <stddef.h>
-#include "usart.h"
+
+
+#ifdef USE_ST_UART
+
+#if __has_include("usart.h")
+    #include "usart.h"
+#else
+    #error "usart.h not found. Please ensure the correct HAL USART header is included
+#endif
 
 #if defined STM32H743xx
     #include "stm32h7xx_hal.h"
     #include "stm32h7xx_hal_uart.h"
+#endif
+
+#if defined STM32F411xx || defined STM32F411xE
+    #include "stm32f4xx_hal.h"
+    #include "stm32f4xx_hal_uart.h"
 #endif
 
 /* Private function prototypes */
@@ -187,12 +200,20 @@ static uint32_t get_hal_word_length(drv_uart_data_width_t data_width)
 {
     switch (data_width)
     {
+#ifdef UART_WORDLENGTH_7B
         case DRV_UART_DATA_WIDTH_7_BIT:
             return UART_WORDLENGTH_7B;
+#endif
+
+#ifdef UART_WORDLENGTH_8B
         case DRV_UART_DATA_WIDTH_8_BIT:
             return UART_WORDLENGTH_8B;
+#endif
+
+#ifdef UART_WORDLENGTH_9B
         case DRV_UART_DATA_WIDTH_9_BIT:
             return UART_WORDLENGTH_9B;
+#endif
         default:
             return UART_WORDLENGTH_8B;
     }
@@ -205,12 +226,18 @@ static uint32_t get_hal_stop_bits(drv_uart_stop_bits_t stop_bits)
 {
     switch (stop_bits)
     {
+#ifdef UART_STOPBITS_1
         case DRV_UART_STOP_BITS_1:
             return UART_STOPBITS_1;
+#endif
+#ifdef UART_STOPBITS_1_5
         case DRV_UART_STOP_BITS_1_5:
             return UART_STOPBITS_1_5;
+#endif
+#ifdef UART_STOPBITS_2
         case DRV_UART_STOP_BITS_2:
             return UART_STOPBITS_2;
+#endif
         default:
             return UART_STOPBITS_1;
     }
@@ -468,3 +495,5 @@ static bool st_uart_is_rx_available(void *dev)
 
     return false;
 }
+
+#endif /* USE_ST_UART */

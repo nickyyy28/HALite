@@ -76,7 +76,7 @@ typedef struct
     std_ret (*writeread)(void* dev, uint8_t cmd, drv_spi_lines_t cmd_line,
         uint32_t addr, drv_spi_lines_t addr_line, drv_spi_addr_mode_t addr_mode, drv_spi_dummy_cycles_t dummy_cycles,
         uint8_t *data, uint32_t data_size, drv_spi_lines_t data_line, drv_spi_direction_t direction);
-
+    std_ret (*set_cs)(uint8_t pulse);
     uint32_t timeout_ms;
 }drv_spi_obj_t;
 

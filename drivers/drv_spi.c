@@ -101,8 +101,14 @@ std_ret drv_spi_writeread(const drv_spi_obj_t *obj, uint8_t cmd, drv_spi_lines_t
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->writeread)
     {
+        if (obj->set_cs != NULL) {
+            obj->set_cs(0); // Assert CS
+        }
         ret = obj->writeread(obj->dev, cmd, cmd_line, addr, addr_line, addr_mode, dummy_cycles,
                              data, data_size, data_line, direction);
+        if (obj->set_cs != NULL) {
+            obj->set_cs(1); // Deassert CS
+        }
     }
     else
     {

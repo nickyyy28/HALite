@@ -32,7 +32,25 @@
  */
 
 #include "st_iic.h"
-#include "i2c.h"
+
+#ifdef USE_ST_IIC
+
+#if __has_include("i2c.h")
+    #include "i2c.h"
+#else
+    #error "i2c.h not found. Please ensure the correct HAL I2C header is included."
+#endif
+
+#if defined STM32H743xx
+#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_i2c.h"
+#endif
+
+#if defined STM32F411xx || defined STM32F411xE
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_i2c.h"
+#endif
+
 
 /* Private function prototypes */
 static std_ret st_iic_init(void* dev);
@@ -44,6 +62,8 @@ static std_ret st_iic_write(void* dev, uint16_t device_addr, uint16_t reg_addr, 
 /* Public Driver Objects                                                     */
 /* ========================================================================= */
 
+#ifdef USE_ST_IIC4
+
 drv_iic_obj_t drv_iic4_obj = {
     .dev = &hi2c4,
     .init = st_iic_init,
@@ -51,6 +71,8 @@ drv_iic_obj_t drv_iic4_obj = {
     .read = st_iic_read,
     .write = st_iic_write
 };
+
+#endif /* USE_ST_IIC4 */
 
 /* ========================================================================= */
 /* Private Functions                                                         */
@@ -63,8 +85,9 @@ static std_ret st_iic_init(void* dev)
         return E_INVALID_PARAM;
     }
 
+#ifdef USE_ST_IIC4
     MX_I2C4_Init();
-
+#endif
     return E_OK;
 }
 
@@ -137,3 +160,5 @@ static std_ret st_iic_write(void* dev, uint16_t device_addr, uint16_t reg_addr, 
 
     return (hal_status == HAL_OK) ? E_OK : E_NOK;
 }
+
+#endif /* USE_ST_IIC */

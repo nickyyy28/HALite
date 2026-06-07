@@ -42,20 +42,17 @@ static std_ret spinor_execute_operation(const drv_spi_obj_t *spi_drv, spi_nor_op
 /* W25Q256JVIQ Specific Definitions                                          */
 /* ========================================================================= */
 
-/**
- * @brief Check if W25Q256JVIQ flash is busy
- * @param spi_drv Pointer to SPI driver object
- * @return true if busy, false otherwise
- */
-static bool w25q256jviq_is_busy(const drv_spi_obj_t *spi_drv);
+/* ========================================================================= */
+/* W25Q256JVIQ Specific Definitions                                          */
+/* ========================================================================= */
+static bool w25q256jviq_is_busy_dualbank(const drv_spi_obj_t *spi_drv);
+static std_ret w25q256jviq_probe_dualbank(drv_spi_obj_t *spi_drv, struct spi_nor_device_t *device);
 
-/**
- * @brief Probe W25Q256JVIQ flash device
- * @param spi_drv Pointer to SPI driver object
- * @param device Pointer to SPI NOR device structure
- * @return std_ret E_OK on success, error code otherwise
- */
-static std_ret w25q256jviq_probe(drv_spi_obj_t *spi_drv, struct spi_nor_device_t *device);
+/* ========================================================================= */
+/* W25Q64 Specific Definitions                                               */
+/* ========================================================================= */
+static bool w25q64_is_busy(const drv_spi_obj_t *spi_drv);
+static std_ret w25q64_probe(drv_spi_obj_t *spi_drv, struct spi_nor_device_t *device);
 
 /* ========================================================================= */
 /* Device Definitions                                                        */
@@ -63,8 +60,8 @@ static std_ret w25q256jviq_probe(drv_spi_obj_t *spi_drv, struct spi_nor_device_t
 
 spi_nor_device_t w25q256jviq_dual_flash = {
     .jedec_id = 0xEF4019,
-    .flash_probe = w25q256jviq_probe,
-    .flash_is_busy = w25q256jviq_is_busy,
+    .flash_probe = w25q256jviq_probe_dualbank,
+    .flash_is_busy = w25q256jviq_is_busy_dualbank,
     .read_id_op = {0x9F, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_NONE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
     .read_op = {0xEC, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_QUAD, SPI_LINE_QUAD, SPI_DUMMY_6},
     .program_page_op = {0x34, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_SINGLE, SPI_LINE_QUAD, SPI_DUMMY_NONE},
@@ -74,8 +71,8 @@ spi_nor_device_t w25q256jviq_dual_flash = {
 
 spi_nor_device_t w25q256jviq_dual_flash_single_line = {
     .jedec_id = 0xEF4019,
-    .flash_probe = w25q256jviq_probe,
-    .flash_is_busy = w25q256jviq_is_busy,
+    .flash_probe = w25q256jviq_probe_dualbank,
+    .flash_is_busy = w25q256jviq_is_busy_dualbank,
     .read_id_op = {0x9F, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_NONE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
     .read_op = {0x13, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_SINGLE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
     .program_page_op = {0x12, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_SINGLE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
@@ -83,11 +80,36 @@ spi_nor_device_t w25q256jviq_dual_flash_single_line = {
     .write_enable_op = {0x06, SPI_LINE_SINGLE, SPI_ADDR_4_BYTE, SPI_LINE_NONE, SPI_LINE_NONE, SPI_DUMMY_NONE},
 };
 
+spi_nor_device_t w25q64_flash = {
+    .jedec_id = 0xEF4017,
+    .flash_probe = w25q64_probe,
+    .flash_is_busy = w25q64_is_busy,
+    /* W25Q64 uses 3-byte addressing mode */
+    .read_id_op = {0x9F, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_NONE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
+    .read_op = {0x03, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_SINGLE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
+    .program_page_op = {0x02, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_SINGLE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
+    .erase_sector_op = {0x20, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_SINGLE, SPI_LINE_NONE, SPI_DUMMY_NONE},
+    .write_enable_op = {0x06, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_NONE, SPI_LINE_NONE, SPI_DUMMY_NONE},
+};
+
+/* driver same with w25q64 */
+spi_nor_device_t py25q64_flash = {
+    .jedec_id = 0x852017,
+    .flash_probe = w25q64_probe,
+    .flash_is_busy = w25q64_is_busy,
+    /* W25Q64 uses 3-byte addressing mode */
+    .read_id_op = {0x9F, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_NONE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
+    .read_op = {0x03, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_SINGLE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
+    .program_page_op = {0x02, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_SINGLE, SPI_LINE_SINGLE, SPI_DUMMY_NONE},
+    .erase_sector_op = {0x20, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_SINGLE, SPI_LINE_NONE, SPI_DUMMY_NONE},
+    .write_enable_op = {0x06, SPI_LINE_SINGLE, SPI_ADDR_3_BYTE, SPI_LINE_NONE, SPI_LINE_NONE, SPI_DUMMY_NONE},
+};
+
 /* ========================================================================= */
 /* Private Functions                                                         */
 /* ========================================================================= */
 
-static bool w25q256jviq_is_busy(const drv_spi_obj_t *spi_drv)
+static bool w25q256jviq_is_busy_dualbank(const drv_spi_obj_t *spi_drv)
 {
     if (NULL == spi_drv)
     {
@@ -112,7 +134,7 @@ static bool w25q256jviq_is_busy(const drv_spi_obj_t *spi_drv)
     return false;
 }
 
-static std_ret w25q256jviq_probe(drv_spi_obj_t *spi_drv, struct spi_nor_device_t *device)
+static std_ret w25q256jviq_probe_dualbank(drv_spi_obj_t *spi_drv, struct spi_nor_device_t *device)
 {
     if (NULL == spi_drv)
     {
@@ -190,14 +212,65 @@ static std_ret w25q256jviq_probe(drv_spi_obj_t *spi_drv, struct spi_nor_device_t
     return E_OK;
 }
 
+/* --- W25Q64 Single SPI Implementations --- */
+
+static bool w25q64_is_busy(const drv_spi_obj_t *spi_drv)
+{
+    if (NULL == spi_drv) return true;
+
+    uint8_t status = 0;
+
+    /* Read status register 1 */
+    std_ret ret = drv_spi_writeread(spi_drv, 0x05, SPI_LINE_SINGLE, 0x0, SPI_LINE_NONE, SPI_ADDR_3_BYTE, SPI_DUMMY_NONE, &status, 1, SPI_LINE_SINGLE, SPI_DATA_IN);
+    if (E_OK != ret)
+    {
+        LOG_ERROR("w25q64 read status register1 fail");
+        return true;
+    }
+
+    /* Check BUSY/WIP bit (bit 0) */
+    if (status & 0x01)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+static std_ret w25q64_probe(drv_spi_obj_t *spi_drv, struct spi_nor_device_t *device)
+{
+    if (NULL == spi_drv) return E_INVALID_PARAM;
+
+    uint8_t read_buffer[3] = {0};
+
+    /* Standard read JEDEC ID (0x9F) */
+    std_ret ret = spinor_execute_operation(spi_drv, device->read_id_op, 0x0, read_buffer, 3, SPI_DATA_IN);
+    if (E_OK != ret) {
+        LOG_ERROR("w25q64 read jedec id fail, ret = %d", ret);
+        return E_NOK;
+    }
+
+    uint32_t jedec = (read_buffer[0] << 16) | (read_buffer[1] << 8) | read_buffer[2];
+    
+    if (jedec != device->jedec_id)
+    {
+        LOG_ERROR("w25q64 read jedec id compare fail, read = 0x%08x, expected = 0x%08x", jedec, device->jedec_id);
+        return E_NOK;
+    }
+
+    LOG_INFO("w25q64_probe success: jedec = 0x%08x", jedec);
+
+    return E_OK;
+}
+
 static std_ret spinor_execute_operation(const drv_spi_obj_t *spi_drv, spi_nor_operate_t op, uint32_t addr, uint8_t *data, uint32_t size, drv_spi_direction_t direction)
 {
     if (NULL == spi_drv)
     {
         return E_INVALID_PARAM;
     }
-
-    return drv_spi_writeread(spi_drv, op.command, op.cmd_line, addr, op.addr_line, op.addr_mode, op.dummy_cycles, data, size, op.data_line, direction);
+    std_ret ret = drv_spi_writeread(spi_drv, op.command, op.cmd_line, addr, op.addr_line, op.addr_mode, op.dummy_cycles, data, size, op.data_line, direction);
+    return ret;
 }
 
 /* ========================================================================= */
@@ -211,9 +284,27 @@ std_ret spinor_probe_device(const drv_spi_obj_t *spi_drv, spi_nor_device_t **spi
         return E_INVALID_PARAM;
     }
 
-    *spi_nor = &w25q256jviq_dual_flash;
+    /* Array of supported devices */
+    spi_nor_device_t *supported_devices[] = {
+        &w25q256jviq_dual_flash,
+        &w25q64_flash,
+        &py25q64_flash,
+    };
 
-    return E_OK;
+    /* Loop through and probe each device */
+    for (uint32_t i = 0; i < sizeof(supported_devices) / sizeof(supported_devices[0]); i++)
+    {
+        LOG_INFO("Probing for SPI NOR Flash: JEDEC ID 0x%06X", supported_devices[i]->jedec_id);
+        if (supported_devices[i]->flash_probe((drv_spi_obj_t *)spi_drv, supported_devices[i]) == E_OK)
+        {
+            *spi_nor = supported_devices[i];
+            LOG_INFO("SPI NOR Flash probed successfully. JEDEC: 0x%06X", supported_devices[i]->jedec_id);
+            return E_OK;
+        }
+    }
+
+    LOG_ERROR("SPI NOR Flash probe failed. No supported device found.");
+    return E_NOK;
 }
 
 std_ret spinor_erase_sector(const drv_spi_obj_t *spi_drv, const spi_nor_device_t *spi_nor, uint32_t addr)
