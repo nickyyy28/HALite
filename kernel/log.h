@@ -1,11 +1,13 @@
 #ifndef __LOG_H_
 #define __LOG_H_
 
-#include "st_uart.h"
-#include "usart.h"
+#include "ch32h417.h"
+#include "ch32h417_usart.h"
+
+extern void UART_Transmit(uint8_t *buf, uint16_t len);
 
 #define SHELL_USART					huart1
-#define SHELL_Transmit(src, len)	HAL_UART_Transmit(&SHELL_USART, src, len, 100)
+#define SHELL_Transmit(src, len)	UART_Transmit(src, len)
 #define CONSOLE_COLOR_ENABLE 		1
 
 

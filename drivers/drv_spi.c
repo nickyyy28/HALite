@@ -71,7 +71,13 @@ std_ret drv_spi_write(drv_spi_obj_t *obj, const uint8_t *data, uint32_t size, dr
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->write)
     {
+        if (obj->set_cs != NULL) {
+            obj->set_cs(0); // Assert CS
+        }
         ret = obj->write(obj->dev, data, size, line);
+        if (obj->set_cs != NULL) {
+            obj->set_cs(1); // Deassert CS
+        }
     }
     else
     {
@@ -85,7 +91,13 @@ std_ret drv_spi_read(drv_spi_obj_t *obj, uint8_t *dst, uint32_t size, drv_spi_li
     std_ret ret = E_NOK;
     if (NULL != obj && NULL != obj->read)
     {
+        if (obj->set_cs != NULL) {
+            obj->set_cs(0); // Assert CS
+        }
         ret = obj->read(obj->dev, dst, size, line);
+        if (obj->set_cs != NULL) {
+            obj->set_cs(1); // Deassert CS
+        }
     }
     else
     {
