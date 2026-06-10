@@ -1,13 +1,14 @@
 #ifndef __LOG_H_
 #define __LOG_H_
 
-#include "ch32h417.h"
-#include "ch32h417_usart.h"
+#include "HALite_conf.h"
 
-extern void UART_Transmit(uint8_t *buf, uint16_t len);
+#ifndef LOG_TRANSMIT
+#define LOG_TRANSMIT(src, len)
+#endif
 
-#define SHELL_USART					huart1
-#define SHELL_Transmit(src, len)	UART_Transmit(src, len)
+
+
 #define CONSOLE_COLOR_ENABLE 		1
 
 
@@ -33,7 +34,7 @@ extern void UART_Transmit(uint8_t *buf, uint16_t len);
 #if CONSOLE_COLOR_ENABLE == 1
 
 //设置控制台字体颜色
-#define SET_CONSOLE_COLOR(__color__) SHELL_Transmit((uint8_t*)__color__, strlen(__color__))
+#define SET_CONSOLE_COLOR(__color__) LOG_TRANSMIT((uint8_t*)__color__, strlen(__color__))
 //恢复控制台字体颜色
 #define RESUME_CONSOLE_COLOR() SET_CONSOLE_COLOR(CONSOLE_COLOR_WHITE)
 

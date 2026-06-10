@@ -31,7 +31,7 @@ void SHELL_LOG_LEVEL(_LOG_LEVEL level, const char* fmt, ...)
     
     va_end(args);
 	SET_CONSOLE_COLOR(log_level_color[level - 1]);
-	SHELL_Transmit((uint8_t*)log_buffer, strlen(log_buffer));
+	LOG_TRANSMIT((uint8_t*)log_buffer, strlen(log_buffer));
 	RESUME_CONSOLE_COLOR();
 }
 
@@ -46,5 +46,5 @@ void SHELL_PRINTF(const char* fmt, ...)
 
 	va_end(args);
 
-	SHELL_Transmit((uint8_t*)print_buffer, strlen(print_buffer));
+	LOG_TRANSMIT((uint8_t*)print_buffer, strlen(print_buffer));
 }
