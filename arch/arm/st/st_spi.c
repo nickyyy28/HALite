@@ -33,7 +33,7 @@
 
 #include "st_spi.h"
 #include "log.h"
-#include "stm32f4xx_hal_gpio.h"
+
 
 #ifdef USE_ST_SPI
 
@@ -53,6 +53,7 @@
 #if defined STM32F411xx || defined STM32F411xE
     #include "stm32f4xx_hal.h"
     #include "stm32f4xx_hal_spi.h"
+    #include "stm32f4xx_hal_gpio.h"
 #endif
 
 /* Private function prototypes */
