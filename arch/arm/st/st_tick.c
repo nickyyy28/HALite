@@ -12,6 +12,11 @@
 #include "stm32f4xx_hal.h"
 #endif
 
+
+#if defined STM32L496xx
+#include "stm32l4xx_hal.h"
+#endif
+
 uint32_t get_tick_ms(void)
 {
 	return HAL_GetTick();

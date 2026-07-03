@@ -46,6 +46,11 @@
 #include "stm32f4xx_hal_gpio.h"
 #endif
 
+#if defined STM32L496xx
+#include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal_gpio.h"
+#endif
+
 /* Private function prototypes */
 static std_ret st_gpio_init(void *dev, uint16_t pin, const drv_gpio_config_t *config);
 static std_ret st_gpio_deinit(void *dev, uint16_t pin);
